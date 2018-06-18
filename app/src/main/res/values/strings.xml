@@ -1,3 +1,28 @@
 <resources>
     <string name="app_name">Inventory App</string>
+    <string name="quantity">Quantity</string>
+    <string name="inventory_is_empty">Inventory is empty</string>
+    <string name="get_started_by_adding_a_product">Get started by adding a product</string>
+    <string name="sale">Sale</string>
+    <string name="edit_product">Edit Product</string>
+    <string name="name_text_view">Name</string>
+    <string name="price_text_view">Price</string>
+    <string name="quantity_text_view">Quantity</string>
+    <string name="supplier_name_text_view">Supplier Name</string>
+    <string name="supplier_phone_number_text_view">Supplier Phone</string>
+    <string name="please_input_correct_info">Please input the correct information</string>
+    <string name="product_updated">Product have been updated</string>
+    <string name="product_couldnt_update">Product couldn\'t been updated</string>
+    <string name="product_added">Product have been added</string>
+    <string name="product_couldnt_added">Product couldn\'t been added</string>
+    <string name="save_action">Save</string>
+    <string name="edit_product_action">Edit Product</string>
+    <string name="add_product">Add Product</string>
+    <string name="decrease_button">-</string>
+    <string name="increase_button">+</string>
+    <string name="order_button">Order</string>
+    <string name="delete_button">delete</string>
+    <string name="delete_massage">Are you sure you want to delete this product</string>
+    <string name="discard_massage">Discard</string>
+    <string name="keep_product">Keep Product</string>
 </resources>

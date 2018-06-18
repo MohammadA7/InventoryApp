@@ -1,11 +1,22 @@
 package com.example.moham.inventoryapp;
 
+import android.app.LoaderManager;
+import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.CursorLoader;
+import android.content.Intent;
+import android.content.Loader;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.net.Uri;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
-import android.widget.TextView;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ListView;
 
 import com.example.moham.inventoryapp.data.InventoryContract.ProductEntry;
 import com.example.moham.inventoryapp.data.InventoryDbHelper;
@@ -13,12 +24,18 @@ import com.example.moham.inventoryapp.data.InventoryDbHelper;
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
-public class InventoryActivity extends AppCompatActivity {
+public class InventoryActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks {
 
-    InventoryDbHelper dbHelper;
+    private final int LOADER_ID = 0;
+    MyCursorAdapter cursorAdapter;
+    Uri currentUri;
 
-    @BindView(R.id.text_view)
-    TextView output;
+    @BindView(R.id.list_view)
+    ListView listView;
+
+    @BindView(R.id.empty_view)
+    View emptyView;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -26,64 +43,71 @@ public class InventoryActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         ButterKnife.bind(this);
 
-        dbHelper = new InventoryDbHelper(this);
+        listView.setEmptyView(emptyView);
 
-        insertData();
-        insertData();
-        insertData();
-        insertData();
+        cursorAdapter = new MyCursorAdapter(this, null, getContentResolver());
+        listView.setAdapter(cursorAdapter);
 
-        queryData();
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            @Override
+            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+                Intent intent = new Intent(InventoryActivity.this, ProductDetails.class);
 
-    }
-    public void insertData() {
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
+                currentUri = ContentUris.withAppendedId(ProductEntry.CONTENT_URI, id);
 
-        ContentValues values = new ContentValues();
-        values.put(ProductEntry.COLUMN_PRODUCT_NAME, "Pixel 2 XL");
-        values.put(ProductEntry.COLUMN_PRODUCT_PRICE, 1398.00);
-        values.put(ProductEntry.COLUMN_PRODUCT_QUANTITY, 2);
-        values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME, "Target");
-        values.put(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER, "1.800.440.0680");
-
-        db.insert(ProductEntry.TABLE_NAME, null, values);
-    }
-
-    public void queryData() {
-
-        SQLiteDatabase db = dbHelper.getReadableDatabase();
-
-        Cursor cursor = db.query(ProductEntry.TABLE_NAME,
-                null,
-                null,
-                null,
-                null,
-                null,
-                null);
-
-        try {
-            int indexOfColumnName = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_NAME);
-            int indexOfColumnPrice = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_PRICE);
-            int indexOfColumnQuantity = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_QUANTITY);
-            int indexOfColumnSupplierName = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_SUPPLIER_NAME);
-            int indexOfColumnSupplierPhoneNumber = cursor.getColumnIndex(ProductEntry.COLUMN_PRODUCT_SUPPLIER_PHONE_NUMBER);
-
-            output.setText("Output:");
-            while (cursor.moveToNext()) {
-
-                String currentName = cursor.getString(indexOfColumnName);
-                Double currentPrice = cursor.getDouble(indexOfColumnPrice);
-                int currentQuantity = cursor.getInt(indexOfColumnQuantity);
-                String currentSupplierName = cursor.getString(indexOfColumnSupplierName);
-                String currentSupplierPhoneNumber = cursor.getString(indexOfColumnSupplierPhoneNumber);
-
-                output.append("\n " + currentName + " | " + currentPrice + " | " + currentQuantity + " | " + currentSupplierName + " | " + currentSupplierPhoneNumber);
-
+                intent.setData(currentUri);
+                startActivity(intent);
             }
-        }
-        finally {
-            cursor.close();
-        }
+        });
+
+        getLoaderManager().initLoader(LOADER_ID, null, this);
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu options from the res/menu/menu_catalog.xml file.
+        // This adds menu items to the app bar.
+        getMenuInflater().inflate(R.menu.inventory_menu, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+
+        switch (item.getItemId()) {
+            case R.id.action_add:
+                Intent intent = new Intent(InventoryActivity.this, EditProduct.class);
+                startActivity(intent);
+                return true;
+        }
+        return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public Loader onCreateLoader(int id, Bundle args) {
+        String[] projection = {
+                ProductEntry._ID,
+                ProductEntry.COLUMN_PRODUCT_NAME,
+                ProductEntry.COLUMN_PRODUCT_PRICE,
+                ProductEntry.COLUMN_PRODUCT_QUANTITY
+        };
+
+        return new CursorLoader(this,
+                ProductEntry.CONTENT_URI,
+                projection,
+                null,
+                null,
+                null
+        );
+    }
+
+    @Override
+    public void onLoadFinished(Loader loader, Object data) {
+        cursorAdapter.swapCursor((Cursor) data);
+    }
+
+    @Override
+    public void onLoaderReset(Loader loader) {
+        cursorAdapter.swapCursor(null);
+    }
 }

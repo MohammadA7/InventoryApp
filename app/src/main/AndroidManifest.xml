@@ -16,6 +16,28 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ProductDetails"
+            android:parentActivityName=".InventoryActivity">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".InventoryActivity" />
+        </activity>
+        <activity
+            android:name=".EditProduct"
+            android:parentActivityName=".ProductDetails">
+            <!-- Parent activity meta-data to support 4.0 and lower -->
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ProductDetails" />
+        </activity>
+
+        <provider
+            android:name=".data.InventoryProvider"
+            android:authorities="com.example.moham.inventoryapp"
+            android:exported="false" />
     </application>
+
 
 </manifest>
